@@ -6,6 +6,7 @@ import sys
 from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
 CITIES = [
@@ -59,7 +60,7 @@ def describe(code):
     return code
 
 
-def fetch(city, lat, lon, user_agent, now):
+def fetch_yr(city, lat, lon, user_agent, now):
     url = (
         "https://api.met.no/weatherapi/locationforecast/2.0/compact"
         f"?lat={lat:.4f}&lon={lon:.4f}"
@@ -98,6 +99,7 @@ def fetch(city, lat, lon, user_agent, now):
                 ZoneInfo("Europe/Vilnius")
             ).strftime("%Y-%m-%d %H:%M"),
             "tipas": "prognozė",
+            "saltinis": "MET Norway / Yr.no",
         }
     except HTTPError as exc:
         reason = f"HTTP {exc.code}"
@@ -112,6 +114,58 @@ def fetch(city, lat, lon, user_agent, now):
     }
 
 
+OPEN_METEO_CODES = {
+    0: "Giedra", 1: "Mažai debesuota", 2: "Debesuota su pragiedruliais",
+    3: "Debesuota", 45: "Rūkas", 48: "Šerkšnotas rūkas",
+    51: "Silpna dulksna", 53: "Dulksna", 55: "Stipri dulksna",
+    56: "Šąlanti dulksna", 57: "Stipri šąlanti dulksna",
+    61: "Nedidelis lietus", 63: "Lietus", 65: "Smarkus lietus",
+    66: "Šąlantis lietus", 67: "Smarkus šąlantis lietus",
+    71: "Nedidelis sniegas", 73: "Sniegas", 75: "Smarkus sniegas",
+    77: "Sniego kruopos", 80: "Nedideli lietaus šuorai",
+    81: "Lietaus šuorai", 82: "Smarkūs lietaus šuorai",
+    85: "Nedideli sniego šuorai", 86: "Smarkūs sniego šuorai",
+    95: "Perkūnija", 96: "Perkūnija su kruša", 99: "Smarki perkūnija su kruša",
+}
+
+
+def fetch_open_meteo(city, lat, lon):
+    params = urlencode({
+        "latitude": lat, "longitude": lon,
+        "current": "temperature_2m,weather_code",
+        "timezone": "Europe/Vilnius",
+    })
+    request = Request(
+        "https://api.open-meteo.com/v1/forecast?" + params,
+        headers={"User-Agent": DEFAULT_USER_AGENT, "Accept": "application/json"},
+    )
+    with urlopen(request, timeout=15) as response:
+        data = json.load(response)
+    current = data["current"]
+    return {
+        "miestas": city,
+        "temperatura_c": current["temperature_2m"],
+        "salygos": OPEN_METEO_CODES.get(current["weather_code"], "Nenustatyta"),
+        "laikas_lietuvoje": current["time"].replace("T", " "),
+        "tipas": "modelio duomenys",
+        "saltinis": "Open-Meteo",
+    }
+
+
+def fetch(city, lat, lon, user_agent, now):
+    result = fetch_yr(city, lat, lon, user_agent, now)
+    if result["temperatura_c"] is not None:
+        return result
+    yr_error = result.get("klaida", "Nežinoma klaida")
+    try:
+        fallback = fetch_open_meteo(city, lat, lon)
+        fallback["pastaba"] = "Yr.no nepasiekiamas: " + yr_error
+        return fallback
+    except (HTTPError, URLError, TimeoutError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        result["klaida"] = "Yr.no: " + yr_error + "; Open-Meteo: " + str(exc)
+        return result
+
+
 def main():
     user_agent = os.environ.get("YR_USER_AGENT", DEFAULT_USER_AGENT).strip()
     if not user_agent:
@@ -120,8 +174,9 @@ def main():
     now = datetime.now(timezone.utc)
     results = [fetch(city, lat, lon, user_agent, now) for city, lat, lon in CITIES]
     print(json.dumps({
-        "saltinis": "MET Norway / Yr.no",
+        "saltinis": "MET Norway / Yr.no (atsarginis: Open-Meteo)",
         "saltinio_url": "https://api.met.no/",
+        "atsarginio_saltinio_url": "https://open-meteo.com/",
         "gauta_utc": now.isoformat(),
         "miestai": results,
     }, ensure_ascii=False, indent=2))
