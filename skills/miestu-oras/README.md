@@ -1,35 +1,36 @@
 # miestu-oras
 
-Penkių didžiausių Lietuvos miestų **dabartinių orų įvertinimas** iš oficialaus **Foreca Weather API**: Vilnius, Kaunas, Klaipėda, Šiauliai ir Panevėžys.
+Penkių didžiausių Lietuvos miestų **artimiausio laiko orų prognozė** iš **Yr.no / MET Norway**: Vilnius, Kaunas, Klaipėda, Šiauliai ir Panevėžys.
 
-## Reikalavimai
+## Naudojimas
 
-- Python 3.9+ ir internetas; papildomų Python bibliotekų nereikia.
-- **Foreca Weather API raktas**. Jį gaukite https://developer.foreca.com/ (gali reikėti registracijos, bandomojo laikotarpio ar mokamo plano).
-
-## Paleidimas
-
-Linux / macOS:
+Reikia Python 3.9+ ir interneto; papildomų Python paketų ir API rakto **nereikia**.
 
 ```bash
-export FORECA_API_KEY="jusu_foreca_api_raktas"
-python scripts/orai.py
+python skills/miestu-oras/scripts/orai.py
+```
+
+Skriptas pateikia JSON su kiekvieno miesto temperatūra (°C), lietuvišku oro sąlygų aprašymu ir prognozės laiku Lietuvos laiku.
+
+## API identifikacija
+
+MET Norway reikalauja **identifikuojančio User-Agent** su programos pavadinimu ir tikra kontaktine informacija (pvz., viešu projekto URL). Pagal numatytuosius nustatymus naudojamas šios repozitorijos URL. Jei projektą perkeliate, pakeiskite jį:
+
+```bash
+export YR_USER_AGENT="miestu-oras/1.0 https://github.com/Martin-cool/testing-skills"
 ```
 
 Windows PowerShell:
 
 ```powershell
-$env:FORECA_API_KEY="jusu_foreca_api_raktas"
-python scripts/orai.py
+$env:YR_USER_AGENT="miestu-oras/1.0 https://github.com/Martin-cool/testing-skills"
 ```
 
-**Niekada neįrašykite tikro API rakto į GitHub failus ar komandas, kurių istorija dalijatės.** Jei naudojate agentą, perduokite kintamąjį jo vykdymo aplinkai.
-
-Skriptas grąžina JSON su temperatūra (°C), lietuvišku oro sąlygų aprašymu ir duomenų laiku Lietuvos laiku. Naudojamas Foreca `/api/v1/current/{longitude},{latitude}` endpointas ir `lang=lt`.
+Nenaudokite fiktyvios kontaktinės informacijos. Gerbkite API talpyklos ir užklausų dažnio taisykles.
 
 ## Failai
 
-- `SKILL.md` – agento instrukcijos.
-- `scripts/orai.py` – Foreca API klientas.
+- `SKILL.md` – instrukcijos agentui.
+- `scripts/orai.py` – oficialaus MET Norway `locationforecast/2.0/compact` API klientas.
 
-**Pastaba:** Foreca `current` yra dabartinių orų įvertinimas, ne tiesioginis stoties matavimas. API užklausos gali būti apmokestinamos pagal jūsų planą. Duomenų šaltinis: https://developer.foreca.com/.
+**Svarbu:** tai prognozė, ne meteorologinės stoties matavimai. Šaltinis: [Yr.no](https://www.yr.no/) / [MET Norway](https://api.met.no/weatherapi/locationforecast/2.0/documentation). Duomenų naudojimui taikomos šaltinio licencijos ir priskyrimo sąlygos.
