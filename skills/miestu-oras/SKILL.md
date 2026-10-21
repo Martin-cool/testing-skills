@@ -1,16 +1,15 @@
 ---
 name: miestu-oras
-description: Gauti penkių didžiausių Lietuvos miestų (Vilniaus, Kauno, Klaipėdos, Šiaulių, Panevėžio) oro temperatūrą ir oro sąlygas iš oficialios Meteo.lt tarnybos. Naudoti, kai prašoma dabartinių orų, temperatūrų ar orų palyginimo šiuose miestuose.
+description: Pateikti dabartinę penkių didžiausių Lietuvos miestų (Vilniaus, Kauno, Klaipėdos, Šiaulių ir Panevėžio) oro temperatūrą bei sąlygas iš Foreca Weather API. Naudoti, kai vartotojas prašo šių miestų orų arba temperatūrų palyginimo.
 ---
 
 # Miestų oras
 
-Kai vartotojas prašo penkių didžiausių Lietuvos miestų orų:
+1. Įsitikink, kad aplinkos kintamajame `FORECA_API_KEY` yra naudotojo Foreca Weather API raktas. Niekada nerodyk jo atsakyme, žurnaluose ar repozitorijoje. Jei rakto nėra, paaiškink, kaip jį nustatyti, ir neišgalvok duomenų.
+2. Paleisk `python scripts/orai.py` iš šio skill katalogo (reikia interneto).
+3. Pateik lietuvišką lentelę su penkiais miestais, temperatūra (°C), oro sąlygomis ir Foreca duomenų laiku Lietuvos laiku.
+4. Nurodyk, kad tai Foreca **dabartinių orų įvertinimas** (ne meteorologinės stoties matavimas). Šaltinis: Foreca Weather API, https://developer.foreca.com/.
+5. Jei kuriam nors miestui užklausa nepavyko, parodyk „Duomenų nėra“, nekurk spėjimų. Jei visos užklausos nesėkmingos, paaiškink priežastį.
+6. Jei vartotojas prašo prognozės kitai dienai ar faktinių stoties matavimų, šis dabartinių orų skriptas tam netinka.
 
-1. Paleisk `python scripts/orai.py` iš šio skill katalogo. Reikalingas interneto ryšys.
-2. Pateik rezultatus lietuviškai lentelėje: miestas, temperatūra (°C), oro sąlygos, prognozės laikas Lietuvos laiku.
-3. Aiškiai įvardyk, kad tai **artimiausio prognozės laiko orai**, o ne faktiniai meteorologinės stoties matavimai. Nurodyk šaltinį: Lietuvos hidrometeorologijos tarnyba (Meteo.lt), https://api.meteo.lt/.
-4. Jei miesto duomenys neprieinami, nerašyk spėjimų: pateik „Duomenų nėra“ ir trumpai nurodyk klaidą. Jei visos užklausos nesėkmingos, pranešk apie nepasiekiamą šaltinį.
-5. Jei vartotojas nurodo kitą laiką ar prašo faktinių matavimų, šis scenarijus netinka be atitinkamo pritaikymo; nepateik prognozės kaip matavimo.
-
-Duomenų gavimas vykdomas per oficialų `GET /v1/places/{place-code}/forecasts/long-term` endpointą. Nekopijuok ankstesnių rezultatų kaip naujų.
+Naudojamas oficialus `GET https://weatherapi.foreca.net/api/v1/current/{longitude},{latitude}` su `Authorization: Bearer` ir `lang=lt`. API raktas privalomas.
