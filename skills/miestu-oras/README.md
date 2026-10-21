@@ -1,21 +1,35 @@
 # miestu-oras
 
-Skill'as penkių didžiausių Lietuvos miestų artimiausio laiko orų prognozei gauti iš Meteo.lt.
+Penkių didžiausių Lietuvos miestų **dabartinių orų įvertinimas** iš oficialaus **Foreca Weather API**: Vilnius, Kaunas, Klaipėda, Šiauliai ir Panevėžys.
 
-## Turinys
-- `SKILL.md` – aktyvavimo sąlygos ir agento instrukcijos.
-- `scripts/orai.py` – standartine Python biblioteka paremtas Meteo.lt API klientas.
+## Reikalavimai
 
-## Naudojimas
+- Python 3.9+ ir internetas; papildomų Python bibliotekų nereikia.
+- **Foreca Weather API raktas**. Jį gaukite https://developer.foreca.com/ (gali reikėti registracijos, bandomojo laikotarpio ar mokamo plano).
 
-Reikia Python 3.9+ ir interneto prieigos.
+## Paleidimas
+
+Linux / macOS:
 
 ```bash
+export FORECA_API_KEY="jusu_foreca_api_raktas"
 python scripts/orai.py
 ```
 
-Skriptas grąžina JSON: Vilniaus, Kauno, Klaipėdos, Šiaulių ir Panevėžio temperatūrą, oro sąlygas bei prognozės laiką Lietuvos laiku. Nereikia API rakto ar papildomų Python paketų.
+Windows PowerShell:
 
-Skill'ą įdiekite nukopijavę `miestu-oras` katalogą į savo agento skills katalogą. Vartotojo pavyzdys: „Parodyk penkių didžiausių Lietuvos miestų orus“.
+```powershell
+$env:FORECA_API_KEY="jusu_foreca_api_raktas"
+python scripts/orai.py
+```
 
-**Svarbu:** rodoma artimiausia prieinama **prognozė**, ne realaus laiko stoties matavimas. Duomenų šaltinis: Lietuvos hidrometeorologijos tarnyba, https://api.meteo.lt/. Naudojant duomenis laikykitės tarnybos licencijos ir priskyrimo sąlygų.
+**Niekada neįrašykite tikro API rakto į GitHub failus ar komandas, kurių istorija dalijatės.** Jei naudojate agentą, perduokite kintamąjį jo vykdymo aplinkai.
+
+Skriptas grąžina JSON su temperatūra (°C), lietuvišku oro sąlygų aprašymu ir duomenų laiku Lietuvos laiku. Naudojamas Foreca `/api/v1/current/{longitude},{latitude}` endpointas ir `lang=lt`.
+
+## Failai
+
+- `SKILL.md` – agento instrukcijos.
+- `scripts/orai.py` – Foreca API klientas.
+
+**Pastaba:** Foreca `current` yra dabartinių orų įvertinimas, ne tiesioginis stoties matavimas. API užklausos gali būti apmokestinamos pagal jūsų planą. Duomenų šaltinis: https://developer.foreca.com/.
